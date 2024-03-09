@@ -1,95 +1,70 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+
+import { useAuth } from "@/hooks/useAuth";
+import { guest } from "@/middlewares/auth.middleware";
+import { useAuthStore } from "@/stores/auth.store";
+import { Button, Form, Input } from "antd";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    guest();
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+    const { login } = useAuth({});
+    const authStore = useAuthStore();
+    const router = useRouter();
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+    const [form] = Form.useForm();
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+    const handleLogin = async () => {
+        const params = await form.validateFields();
+        const res = await login(params);
+        authStore.setAuth(res);
+        router.push('/dashboard');
+    }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    return (
+        <main className="bg-gray-100 w-screen h-screen  flex items-center justify-center">
+            <div className="grid grid-cols-2 h-3/6 w-4/6 rounded-2xl shadow-md">
+                <div className="bg-white rounded-s-2xl">
+                    <div className="px-20 flex flex-col justify-center h-full">
+                        <div className="mb-5">
+                            <div className="text-2xl font-semibold ">Welcome</div>
+                            <span className="text-xs">Enter your password to access the admin.</span>
+                        </div>
+                        <Form
+                            form={form}
+                            name="basic"
+                            autoComplete="off"
+                        >
+                            <Form.Item
+                                label="Username"
+                                name="email"
+                                rules={[{ required: true, message: 'Please input your username!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Password"
+                                name="password"
+                                rules={[{ required: true, message: 'Please input your password!' }]}
+                            >
+                                <Input.Password />
+                            </Form.Item>
+
+                            <Form.Item className="flex justify-end">
+                                <Button onClick={handleLogin} type="primary" htmlType="submit">
+                                    Submit
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    </div>
+                </div>
+                <div className="bg-[#001529] tracking-[10px] uppercase font-semibold rounded-e-2xl text-white text-5xl flex items-center justify-center">
+                    <span>invitation</span>
+                </div>
+            </div>
+        </main>
+    );
 }
